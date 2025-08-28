@@ -1,0 +1,52 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Asianloop Hiring • Login</title>
+  <style>
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;padding:24px;max-width:520px;margin:auto}
+    .card{border:1px solid #ddd;border-radius:12px;padding:20px}
+    input,button,select{font-size:16px;padding:10px;border-radius:8px;border:1px solid #ccc;width:100%;box-sizing:border-box;margin:6px 0}
+    button{cursor:pointer}
+    .muted{color:#666;font-size:14px;margin-top:8px}
+  </style>
+</head>
+<body>
+  <h1>Asianloop Hiring</h1>
+  <div class="card">
+    <h3>Login</h3>
+    <input id="email" placeholder="Email" value="admin@gmail.com"/>
+    <input id="password" placeholder="Password" type="password" value="admin123"/>
+    <button id="loginBtn">Login</button>
+    <div id="msg" class="muted"></div>
+  </div>
+
+  <div class="muted">Tip: seeded admin is <b>admin@gmail.com / admin123</b></div>
+
+  <!-- shared helpers -->
+  <script src="/app.js"></script>
+  <script>
+  document.getElementById('loginBtn').onclick = async () => {
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+    const msg = document.getElementById('msg');
+    msg.textContent = 'Signing in...';
+    try {
+      const r = await api('/api/auth/login', {
+        method:'POST',
+        body: JSON.stringify({ email, password })
+      });
+      setToken(r.token);
+      setUser({ name: r.name, role: r.role, email });
+      msg.textContent = 'OK. Redirecting...';
+      // route by role
+      if (r.role === 'admin') location.href = '/admin.html';
+      else location.href = '/interviewer.html';
+    } catch (e) {
+      msg.textContent = 'Login failed: ' + e.message;
+    }
+  };
+  </script>
+</body>
+</html>
