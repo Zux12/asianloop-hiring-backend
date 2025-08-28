@@ -20,6 +20,8 @@ app.use('/api/users', require('./routes/users')); // <-- add this line
 app.use('/api/candidates', require('./routes/candidates')); // <-- add this
 app.use('/api/rounds', require('./routes/rounds'));
 app.use('/api/evals', require('./routes/evals'));
+app.use(require('express').static('public')); // <--- add this line
+
 
 
 
