@@ -1,5 +1,5 @@
-<script>
 const API_BASE = ''; // same origin (your Heroku app)
+
 function setToken(t){ localStorage.setItem('token', t) }
 function getToken(){ return localStorage.getItem('token') }
 function setUser(u){ localStorage.setItem('user', JSON.stringify(u)) }
@@ -14,4 +14,3 @@ async function api(path, opts={}) {
   if (!res.ok) { throw new Error(data.error||('HTTP '+res.status)) }
   return data;
 }
-</script>
