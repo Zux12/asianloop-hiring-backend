@@ -1,0 +1,156 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Asianloop Hiring • Admin</title>
+  <style>
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;padding:16px;max-width:1000px;margin:auto}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+    .card{border:1px solid #ddd;border-radius:12px;padding:16px}
+    input,select,button{font-size:15px;padding:8px;border-radius:8px;border:1px solid #ccc;width:100%;box-sizing:border-box;margin:6px 0}
+    table{border-collapse:collapse;width:100%;font-size:14px}
+    th,td{border-bottom:1px solid #eee;padding:8px;text-align:left}
+    .muted{color:#666}
+    .pill{display:inline-block;padding:2px 8px;border-radius:999px;background:#f2f2f2;font-size:12px}
+  </style>
+</head>
+<body>
+  <h2>Admin Dashboard</h2>
+  <div class="muted" id="who"></div>
+  <p><a href="/login.html">Logout</a></p>
+
+  <div class="row">
+    <div class="card">
+      <h3>Create Interviewer</h3>
+      <input id="iname" placeholder="Name" />
+      <input id="iemail" placeholder="Email" />
+      <input id="ipass" placeholder="Password" type="password" value="panel123"/>
+      <button id="ibtn">Create Interviewer</button>
+      <div id="imsg" class="muted"></div>
+    </div>
+
+    <div class="card">
+      <h3>Create Candidate</h3>
+      <input id="cname" placeholder="Full name" />
+      <input id="cemail" placeholder="Email" />
+      <input id="cphone" placeholder="Phone" />
+      <label>Family</label>
+      <select id="cfamily">
+        <option value="engineering_projects">Engineering & Projects</option>
+        <option value="qaqc_metrology">QA/QC & Metrology</option>
+        <option value="operations_planning">Operations & Planning</option>
+        <option value="safety_security">Safety & Security</option>
+        <option value="data_analytics">Data & Analytics</option>
+        <option value="proc_fin_hr_admin">Proc/Fin/HR/Admin</option>
+        <option value="sales_bd">Sales & BD</option>
+      </select>
+      <input id="cyears" placeholder="Years of experience (number)" type="number" min="0" step="1"/>
+      <input id="cskills" placeholder="Skills comma-separated (e.g. ISO17025,OIML)" />
+      <input id="ctags" placeholder="Tags comma-separated (e.g. Kerteh,Immediate)" />
+      <button id="cbtn">Create Candidate</button>
+      <div id="cmsg" class="muted"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Candidates</h3>
+    <div>
+      <select id="fFamily">
+        <option value="">All families</option>
+        <option value="engineering_projects">Engineering & Projects</option>
+        <option value="qaqc_metrology">QA/QC & Metrology</option>
+        <option value="operations_planning">Operations & Planning</option>
+        <option value="safety_security">Safety & Security</option>
+        <option value="data_analytics">Data & Analytics</option>
+        <option value="proc_fin_hr_admin">Proc/Fin/HR/Admin</option>
+        <option value="sales_bd">Sales & BD</option>
+      </select>
+      <select id="fStatus">
+        <option value="">All status</option>
+        <option value="applied">Applied</option>
+        <option value="shortlisted">Shortlisted</option>
+        <option value="interviewing">Interviewing</option>
+        <option value="offer">Offer</option>
+        <option value="rejected">Rejected</option>
+        <option value="on_hold">On Hold</option>
+        <option value="talent_pool">Talent Pool</option>
+      </select>
+      <input id="fQ" placeholder="Search text (name/email/skill/tag)" style="max-width:260px"/>
+      <button id="fBtn">Filter</button>
+    </div>
+    <table id="ctable">
+      <thead><tr><th>Name</th><th>Email</th><th>Family</th><th>Status</th><th>Years</th><th>Skills</th><th>Tags</th><th>Created</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <script src="/app.js"></script>
+  <script>
+    const me = getUser();
+    document.getElementById('who').textContent = `Signed in as ${me.name || ''} (${me.role || ''})`;
+
+    // Create interviewer
+    document.getElementById('ibtn').onclick = async () => {
+      const imsg = document.getElementById('imsg');
+      try{
+        const name = document.getElementById('iname').value.trim();
+        const email = document.getElementById('iemail').value.trim();
+        const password = document.getElementById('ipass').value;
+        imsg.textContent = 'Creating...';
+        const r = await api('/api/users',{ method:'POST', body: JSON.stringify({ name, email, password }) });
+        imsg.textContent = 'OK: ' + r.user.email;
+      }catch(e){ imsg.textContent = 'Error: ' + e.message }
+    };
+
+    // Create candidate
+    document.getElementById('cbtn').onclick = async () => {
+      const cmsg = document.getElementById('cmsg');
+      try{
+        const fullName = document.getElementById('cname').value.trim();
+        const email = document.getElementById('cemail').value.trim();
+        const phone = document.getElementById('cphone').value.trim();
+        const appliedFamily = document.getElementById('cfamily').value;
+        const yearsExp = parseInt(document.getElementById('cyears').value || '0',10);
+        const skills = document.getElementById('cskills').value.split(',').map(s=>s.trim()).filter(Boolean);
+        const tags = document.getElementById('ctags').value.split(',').map(s=>s.trim()).filter(Boolean);
+        cmsg.textContent = 'Creating...';
+        const r = await api('/api/candidates',{ method:'POST', body: JSON.stringify({ fullName, email, phone, appliedFamily, yearsExp, skills, tags }) });
+        cmsg.textContent = 'OK: ' + r.candidate.fullName;
+        load();
+      }catch(e){ cmsg.textContent = 'Error: ' + e.message }
+    };
+
+    // List candidates
+    async function load(){
+      const fam = document.getElementById('fFamily').value;
+      const st  = document.getElementById('fStatus').value;
+      const q   = encodeURIComponent(document.getElementById('fQ').value.trim());
+      const qs  = `?family=${fam||''}&status=${st||''}&q=${q||''}`;
+      try{
+        const r = await api('/api/candidates'+qs);
+        const tb = document.querySelector('#ctable tbody');
+        tb.innerHTML = '';
+        for(const c of r.items){
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${c.fullName}</td>
+            <td>${c.email}</td>
+            <td><span class="pill">${c.appliedFamily}</span></td>
+            <td>${c.status}</td>
+            <td>${c.yearsExp||0}</td>
+            <td>${(c.skills||[]).join(', ')}</td>
+            <td>${(c.tags||[]).join(', ')}</td>
+            <td>${new Date(c.createdAt).toLocaleString()}</td>
+          `;
+          tb.appendChild(tr);
+        }
+      }catch(e){
+        alert('Load failed: ' + e.message);
+      }
+    }
+    document.getElementById('fBtn').onclick = load;
+    load();
+  </script>
+</body>
+</html>
