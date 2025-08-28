@@ -18,6 +18,8 @@ app.get('/api/health', (req, res) => {
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/users', require('./routes/users')); // <-- add this line
 app.use('/api/candidates', require('./routes/candidates')); // <-- add this
+app.use('/api/rounds', require('./routes/rounds'));
+
 
 
 
