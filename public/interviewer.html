@@ -1,0 +1,237 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Asianloop Hiring • Interviewer</title>
+  <style>
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;padding:16px;max-width:1000px;margin:auto}
+    .muted{color:#666}
+    .card{border:1px solid #ddd;border-radius:12px;padding:16px;margin:12px 0}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    table{border-collapse:collapse;width:100%;font-size:14px}
+    th,td{border-bottom:1px solid #eee;padding:8px;text-align:left}
+    input,select,button,textarea{font-size:15px;padding:8px;border-radius:8px;border:1px solid #ccc}
+    button{cursor:pointer}
+    .pill{display:inline-block;padding:2px 8px;border-radius:999px;background:#f2f2f2;font-size:12px}
+    .right{float:right}
+    dialog{border:none;border-radius:14px;max-width:640px;width:95%;padding:0}
+    .dlg-header{padding:14px 18px;border-bottom:1px solid #eee;font-weight:600}
+    .dlg-body{padding:16px}
+    .dlg-actions{border-top:1px solid #eee;padding:12px 16px;text-align:right}
+    .grid-5{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+    .score-cell{display:flex;align-items:center;gap:6px;justify-content:center}
+    .danger{color:#b10000}
+    .ok{color:#0a7a0a}
+  </style>
+</head>
+<body>
+  <h2>Interviewer Panel</h2>
+  <div class="muted" id="who"></div>
+  <p><a href="/login.html">Logout</a></p>
+
+  <div class="card">
+    <div class="row">
+      <div>
+        <label>Filter by candidate (optional)</label><br/>
+        <input id="fCand" placeholder="Candidate ID"/>
+      </div>
+      <div>
+        <label>&nbsp;</label><br/>
+        <button id="refreshBtn">Refresh Assigned Rounds</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>My Assigned Rounds</h3>
+    <table id="rtbl">
+      <thead>
+        <tr>
+          <th>When</th>
+          <th>Round</th>
+          <th>Candidate</th>
+          <th>Family</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    <div id="rmsg" class="muted"></div>
+  </div>
+
+  <!-- Scoring dialog -->
+  <dialog id="dlg">
+    <div class="dlg-header">Submit Evaluation</div>
+    <div class="dlg-body">
+      <div id="dlgMeta" class="muted" style="margin-bottom:8px"></div>
+      <div class="row">
+        <div>
+          <label>Technical</label>
+          <div class="grid-5">
+            <label class="score-cell"><input type="radio" name="s_tech" value="1">1</label>
+            <label class="score-cell"><input type="radio" name="s_tech" value="2">2</label>
+            <label class="score-cell"><input type="radio" name="s_tech" value="3" checked>3</label>
+            <label class="score-cell"><input type="radio" name="s_tech" value="4">4</label>
+            <label class="score-cell"><input type="radio" name="s_tech" value="5">5</label>
+          </div>
+        </div>
+        <div>
+          <label>Problem Solving</label>
+          <div class="grid-5">
+            <label class="score-cell"><input type="radio" name="s_prob" value="1">1</label>
+            <label class="score-cell"><input type="radio" name="s_prob" value="2">2</label>
+            <label class="score-cell"><input type="radio" name="s_prob" value="3" checked>3</label>
+            <label class="score-cell"><input type="radio" name="s_prob" value="4">4</label>
+            <label class="score-cell"><input type="radio" name="s_prob" value="5">5</label>
+          </div>
+        </div>
+        <div>
+          <label>Safety / Integrity</label>
+          <div class="grid-5">
+            <label class="score-cell"><input type="radio" name="s_safe" value="1">1</label>
+            <label class="score-cell"><input type="radio" name="s_safe" value="2">2</label>
+            <label class="score-cell"><input type="radio" name="s_safe" value="3" checked>3</label>
+            <label class="score-cell"><input type="radio" name="s_safe" value="4">4</label>
+            <label class="score-cell"><input type="radio" name="s_safe" value="5">5</label>
+          </div>
+        </div>
+        <div>
+          <label>Communication</label>
+          <div class="grid-5">
+            <label class="score-cell"><input type="radio" name="s_comm" value="1">1</label>
+            <label class="score-cell"><input type="radio" name="s_comm" value="2">2</label>
+            <label class="score-cell"><input type="radio" name="s_comm" value="3" checked>3</label>
+            <label class="score-cell"><input type="radio" name="s_comm" value="4">4</label>
+            <label class="score-cell"><input type="radio" name="s_comm" value="5">5</label>
+          </div>
+        </div>
+        <div>
+          <label>Culture / Ownership</label>
+          <div class="grid-5">
+            <label class="score-cell"><input type="radio" name="s_cult" value="1">1</label>
+            <label class="score-cell"><input type="radio" name="s_cult" value="2">2</label>
+            <label class="score-cell"><input type="radio" name="s_cult" value="3" checked>3</label>
+            <label class="score-cell"><input type="radio" name="s_cult" value="4">4</label>
+            <label class="score-cell"><input type="radio" name="s_cult" value="5">5</label>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:10px">
+        <label>Notes (optional)</label><br/>
+        <textarea id="notes" rows="3" style="width:100%"></textarea>
+      </div>
+      <div id="evalMsg" class="muted" style="margin-top:6px"></div>
+    </div>
+    <div class="dlg-actions">
+      <button id="cancelBtn">Cancel</button>
+      <button id="submitBtn">Submit</button>
+    </div>
+  </dialog>
+
+  <script src="/app.js"></script>
+  <script>
+    const me = getUser() || {};
+    document.getElementById('who').textContent = `Signed in as ${me.name||''} (${me.role||''})`;
+    if(!me.role){ location.href='/login.html'; }
+
+    const rtbl = document.querySelector('#rtbl tbody');
+    const rmsg = document.getElementById('rmsg');
+    const dlg = document.getElementById('dlg');
+    const notesEl = document.getElementById('notes');
+    const evalMsg = document.getElementById('evalMsg');
+    let current = { candidateId:null, roundId:null, candidateName:'', family:'' };
+
+    function radioVal(name){ const n=document.querySelector(`input[name="${name}"]:checked`); return n? parseInt(n.value,10):3; }
+
+    async function fetchCandidate(id){
+      try{
+        const r = await api('/api/candidates/'+id);
+        return r.candidate;
+      }catch(e){ return null; }
+    }
+
+    async function loadRounds(){
+      rmsg.textContent = 'Loading...';
+      rtbl.innerHTML = '';
+      try{
+        const cid = document.getElementById('fCand').value.trim();
+        const qs = cid? ('?candidateId='+encodeURIComponent(cid)) : '';
+        const r = await api('/api/rounds'+qs);
+        if(!r.rounds || r.rounds.length===0){
+          rmsg.textContent = 'No assigned rounds.';
+          return;
+        }
+        rmsg.textContent = '';
+        for(const rd of r.rounds){
+          const cand = await fetchCandidate(rd.candidateId);
+          const tr = document.createElement('tr');
+          const when = rd.scheduledAt? new Date(rd.scheduledAt).toLocaleString() : '-';
+          tr.innerHTML = `
+            <td>${when}</td>
+            <td>${rd.roundName}</td>
+            <td>${cand? cand.fullName: rd.candidateId}</td>
+            <td>${cand? '<span class="pill">'+cand.appliedFamily+'</span>':''}</td>
+            <td>${rd.stage}</td>
+            <td><button data-cid="${rd.candidateId}" data-rid="${rd._id}" data-cname="${cand?cand.fullName:''}" data-family="${cand?cand.appliedFamily:''}">Score</button></td>
+          `;
+          rtbl.appendChild(tr);
+        }
+
+        // attach button handlers
+        document.querySelectorAll('button[data-rid]').forEach(btn=>{
+          btn.onclick = () => {
+            current.candidateId = btn.getAttribute('data-cid');
+            current.roundId = btn.getAttribute('data-rid');
+            current.candidateName = btn.getAttribute('data-cname') || '';
+            current.family = btn.getAttribute('data-family') || '';
+            document.getElementById('dlgMeta').textContent =
+              `Candidate: ${current.candidateName} • Family: ${current.family} • Round: ${current.roundId}`;
+            notesEl.value = '';
+            evalMsg.textContent = '';
+            dlg.showModal();
+          };
+        });
+
+      }catch(e){
+        rmsg.textContent = 'Load failed: '+ e.message;
+      }
+    }
+
+    document.getElementById('refreshBtn').onclick = loadRounds;
+    document.getElementById('cancelBtn').onclick = ()=> dlg.close();
+
+    document.getElementById('submitBtn').onclick = async () => {
+      evalMsg.textContent = 'Submitting...';
+      try{
+        const body = {
+          candidateId: current.candidateId,
+          roundId: current.roundId,
+          scores: {
+            technical:     radioVal('s_tech'),
+            problem:       radioVal('s_prob'),
+            safety:        radioVal('s_safe'),
+            communication: radioVal('s_comm'),
+            culture:       radioVal('s_cult')
+          },
+          notes: notesEl.value.trim()
+        };
+        const r = await api('/api/evals', { method:'POST', body: JSON.stringify(body) });
+        const pct = r.evaluation?.evalPercent;
+        const rec = r.evaluation?.recommendation;
+        const rf  = r.redFlag?.redFlag ? ` • ⚠️ Red flag: ${r.redFlag.reason}` : '';
+        evalMsg.innerHTML = `Saved. Score: <b>${pct}%</b> • Recommendation: <b>${rec}</b>${rf}`;
+        evalMsg.className = (rec==='hire')? 'ok' : (rec==='no_hire'? 'danger' : 'muted');
+        // keep dialog open so interviewer can adjust or close
+      }catch(e){
+        evalMsg.textContent = 'Submit failed: ' + e.message;
+        evalMsg.className = 'danger';
+      }
+    };
+
+    // initial
+    loadRounds();
+  </script>
+</body>
+</html>
